@@ -20,13 +20,20 @@
    (list
     'define ns-name (list 'make-the-function))
    (list 'define (list 'create)
-	 (list 'define (list fn-name) (list 'quote fn-body))
+	 (list 'define (list fn-name) fn-body)
 	 (list ns-name (list 'quote 'add) (list 'quote fn-name) fn-name))
    (list 'create)))
 
 (define-syntax ns
   (syntax-rules (define)
     ((ns ns-name (define (fn-name) fn-body))
-     (map eval (declarer 'ns-name 'fn-name fn-body)))))
+     (map eval (declarer 'ns-name 'fn-name 'fn-body)))))
 		    
 ; (ns fooland (define (test) 'hey))
+
+#; (ns barman
+    (define (bong)
+      (let loop ((x 0))
+	(cond ((< x 10)
+	       (begin (pp x) (loop (+ x 1))))
+	      (else 'done)))))
