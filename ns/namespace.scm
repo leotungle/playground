@@ -24,7 +24,7 @@
          (list ns-name (list 'quote 'add) (list 'quote (car fn-sig)) (car fn-sig)))
    (list 'create)))
 
-(define-syntax ns
+(define-syntax ns-simple
   (syntax-rules (define)
     ((ns ns-name (define (fn-name ...) fn-body))
      (map eval (declarer 'ns-name '(fn-name ...) (quote fn-body))))
@@ -76,6 +76,31 @@
       (list 'create)))))
 
 ; (delims4 'test (foo ('n1 'n2) 'b1 'b2) (foo ('n3) 'b3))
+
+; doesn't work
+#; (define-syntax direct-ns
+  (syntax-rules (define)
+    ((ns ns-name (define (fn-name ...) fn-body ...) ...)
+     (define ns-name (make-the-function))
+     (define (create)
+       (define (fn-name ...) fn-body ...) ...
+       (add ns-name fn-name ...)
+       ...)
+     (create))))
+
+(define-syntax ns
+  (syntax-rules (define)
+    ((ns ns-name (define (fn-name ...) fn-body ...) ...)
+     (map eval
+          (list
+           (list 'define 'ns-name (list 'make-the-function))
+           (list 'define (list 'create)
+                 (list 'define (list 'fn-name ...) 'fn-body ...) ...
+                 (add 'ns-name 'fn-name ...)
+                 ...)
+           (list 'create))))))
+
+; (ns test (define (foo x) (pp 'foo) (+ x 1)) (define (bar) (pp (list 'bar (foo 2)))))
 
 ; (ns fooland (define (test) 'hey))
 
